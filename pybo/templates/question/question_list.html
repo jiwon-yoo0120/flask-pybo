@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-3">
+    <h5>{{question_list.total}} results have found.</h5>
+    <table class="table table-striped">
+        <thead>
+            <tr class="text-center">
+                <th>Number</th>
+                <th style="width: 50%;">Subject</th>
+                <th>Writer</th>
+                <th>Date</th>
+            </tr>           
+        </thead>
+        <tbody>
+            {% if question_list %}
+            {% for question in question_list.items %}
+            <tr class="text-center">
+                <td>{{question_list.total - ((question_list.page-1) * question_list.per_page) - loop.index0}}</td>
+                <td class="text-left">
+                    <a href="{{url_for('question.detail', question_id=question.id)}}">{{question.question_subject}}</a>
+                    {% if question.answer_set|length > 0 %}
+                    <span class="text-danger small ml-2">{{question.answer_set|length}}</span>
+                    {% endif %}
+                </td>
+                <td>{{question.user.username}}</td>
+                <td>{{question.create_date|datetime}}</td>
+            </tr>    
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="4">No Question Exist</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    <ul class="pagination justify-content center">
+        {% if question_list.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{question_list.prev_num}}" aria-label="previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link" tabindex="-1" href="#" aria-label="previous" aria-disabled="true">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        {% endif %}
+        {% for page_num in question_list.iter_pages() %}
+            {% if page_num %}
+                {% if page_num != question_list.page %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{page_num}}">{{page_num}}</a>
+                </li>
+                {% else %}
+                <li class="page-item active">
+                    <a class="page-link" href="#">{{page_num}}</a>
+                </li>
+                {% endif %}
+            {% else %}
+            <li class="disabled">
+                <a class="page-link" href="#">...</a>
+            </li>
+            {% endif %}
+        {% endfor %}
+        {% if question_list.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{question_list.next_num}}" aria-label="next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1" aria-label="next" aria-disabled="true">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+    <a href="{{url_for('question.create')}}" class="btn btn-primary">Create</a>
+</div>
+{% endblock %}
